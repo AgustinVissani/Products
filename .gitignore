@@ -1,0 +1,14 @@
+
+# Node.js y frontend
+node_modules/
+.env
+.npm
+.eslintcache
+.node_repl_history
+*.tgz
+yarn-integrity
+
+
+# Entorno virtual de Python
+backend/.venv/
+backend/env/
