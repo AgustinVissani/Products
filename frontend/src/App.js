@@ -4,6 +4,7 @@ import { lightTheme, darkTheme } from './theme';
 import ProductList from './components/ProductList';
 import AddProduct from './components/AddProduct';
 import EditProduct from './components/EditProduct';
+import SearchAppBar from './components/SearchAppBar';
 
 function App() {
     const [products, setProducts] = useState([]);
@@ -11,6 +12,7 @@ function App() {
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState('');
     const [editingProduct, setEditingProduct] = useState(null);
+    const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
         fetch('http://localhost:5000/api/products')
@@ -26,7 +28,23 @@ function App() {
     };
 
     const deleteProduct = (productId) => {
-        setProducts(products.filter(product => product.id !== productId));
+        fetch(`http://localhost:5000/api/products/${productId}`, {
+            method: 'DELETE',
+        })
+        .then(response => {
+            if (response.ok) {
+                setProducts(products.filter(product => product.id !== productId));
+                setSnackbarMessage('Product deleted successfully');
+                setSnackbarOpen(true);
+            } else {
+                throw new Error('Failed to delete product');
+            }
+        })
+        .catch(error => {
+            console.error('Error deleting product:', error);
+            setSnackbarMessage('Failed to delete product');
+            setSnackbarOpen(true);
+        });
     };
 
     const updateProduct = (updatedProduct) => {
@@ -52,27 +70,27 @@ function App() {
     return (
         <ThemeProvider theme={currentTheme}>
             <CssBaseline />
-            <Container sx={{ textAlign: 'center', paddingTop: 20 }}>
-                <Typography variant="h1" component="h2" gutterBottom>
-                    Product Store
-                </Typography>
+            <Container sx={{ textAlign: 'center'}}>
+            <SearchAppBar setSearchTerm={setSearchTerm} />
                 <FormControlLabel
                     control={<Switch checked={isDarkMode} onChange={handleThemeChange} />}
                     label="Dark Mode"
                 />
                 <Box sx={{ mt: 4 }}>
-                    {editingProduct ? (
-                        <EditProduct product={editingProduct} updateProduct={updateProduct} />
-                    ) : (
-                        <AddProduct addProduct={addProduct} />
-                    )}
+
                     <ProductList
                         products={products}
+                        searchTerm={searchTerm}
                         deleteProduct={deleteProduct}
                         setSnackbarOpen={setSnackbarOpen}
                         setSnackbarMessage={setSnackbarMessage}
                         setEditingProduct={setEditingProduct}
                     />
+                    {editingProduct ? (
+                        <EditProduct product={editingProduct} updateProduct={updateProduct} />
+                    ) : (
+                        <AddProduct addProduct={addProduct} />
+                    )}
                 </Box>
                 <Snackbar
                     open={snackbarOpen}

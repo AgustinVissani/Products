@@ -53,10 +53,13 @@ def add_product():
 
 @product_bp.route('/products/<int:product_id>', methods=['DELETE'])
 def delete_product(product_id):
-    db = ProductDatabase()
-    product = db.delete_product(product_id)
-    return jsonify({'message': 'Product deleted successfully', 'product': {'id': product.id, 'name': product.name, 'price': product.price}}), 200
-
+    try:
+        db = ProductDatabase()
+        product = db.delete_product(product_id)
+        return jsonify({'message': 'Product deleted successfully', 'product': {'id': product.id, 'name': product.name, 'price': product.price}}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    
 @product_bp.route('/products/<int:product_id>', methods=['PUT'])
 def update_product(product_id):
     data = request.get_json()

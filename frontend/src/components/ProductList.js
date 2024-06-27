@@ -1,25 +1,32 @@
 import React from 'react';
-import { Typography, List, ListItem, ListItemText, ListItemSecondaryAction, IconButton, Snackbar, Box } from '@mui/material';
+import { Typography, List, ListItem, ListItemText, ListItemSecondaryAction, IconButton, Box } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 
-function ProductList({ products, deleteProduct, setSnackbarOpen, setSnackbarMessage, setEditingProduct }) {
+function ProductList({ products, deleteProduct, setSnackbarOpen, setSnackbarMessage, setEditingProduct, searchTerm }) {
     const handleDelete = (productId) => {
         fetch(`http://localhost:5000/api/products/${productId}`, {
             method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            },
         })
         .then(response => {
             if (response.ok) {
-                deleteProduct(productId); 
+                // Eliminación exitosa en el servidor, actualizar localmente
+                deleteProduct(productId); // Esta función debería eliminar el producto del estado local
                 setSnackbarMessage('Product deleted successfully');
                 setSnackbarOpen(true);
             } else {
-                throw new Error('Failed to delete product');
+                // Error al eliminar, manejar el error
+                return response.json().then(error => {
+                    throw new Error(error.message || 'Failed to delete product');
+                });
             }
         })
         .catch(error => {
             console.error('Error deleting product:', error);
-            setSnackbarMessage('Failed to delete product');
+            setSnackbarMessage(error.message || 'Failed to delete product');
             setSnackbarOpen(true);
         });
     };
@@ -28,11 +35,16 @@ function ProductList({ products, deleteProduct, setSnackbarOpen, setSnackbarMess
         setEditingProduct(product);
     };
 
+    // Filtrar productos por el término de búsqueda
+    const filteredProducts = products.filter(product =>
+        product.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
     return (
         <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column' }}>
-            <Typography variant="h3" gutterBottom>Product List</Typography>
-            <List sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}>
-                {products.map(product => (
+            <Typography variant="h4" gutterBottom>Product List</Typography>
+            <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
+                {filteredProducts.map(product => (
                     <ListItem key={product.id} sx={{ borderBottom: '1px solid #ccc' }}>
                         <ListItemText primary={`${product.name}: $${product.price}`} secondary={product.photo ? <img src={product.photo} alt={product.name} width="50" /> : null} />
                         <ListItemSecondaryAction>
@@ -45,6 +57,10 @@ function ProductList({ products, deleteProduct, setSnackbarOpen, setSnackbarMess
                         </ListItemSecondaryAction>
                     </ListItem>
                 ))}
+                {/* Mensaje si no hay resultados */}
+                {filteredProducts.length === 0 && (
+                    <Typography variant="subtitle1" sx={{ p: 2 }}>No products found</Typography>
+                )}
             </List>
         </Box>
     );

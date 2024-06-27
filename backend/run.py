@@ -4,7 +4,7 @@ from app.product_bp import product_bp
 
 def create_app():
     app = Flask(__name__)
-    CORS(app, resources={r"/api/*": {"origins": "*"}})  # Configurar CORS para todas las rutas API
+    CORS(app, resources={r"/api/*": {"origins": "http://localhost:3000"}})  # Configura CORS solo para localhost:3000
 
     # Registrar el blueprint
     app.register_blueprint(product_bp, url_prefix='/api')

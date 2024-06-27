@@ -30,7 +30,7 @@ function EditProduct({ product, updateProduct }) {
 
     return (
         <Box component="form" onSubmit={handleSubmit} sx={{ mt: 3 }}>
-            <Typography variant="h3" sx={{ mb: 2 }}>Edit Product</Typography>
+            <Typography variant="4" sx={{ mb: 2 }}>Edit Product</Typography>
             <TextField
                 label="Product Name"
                 value={name}
