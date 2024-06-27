@@ -1,34 +1,26 @@
 import React, { useState } from 'react';
 import { TextField, Button, Typography, Box } from '@mui/material';
 
-function AddProduct({ addProduct }) {
-    const [name, setName] = useState('');
-    const [price, setPrice] = useState('');
-    const [photo, setPhoto] = useState('');  // Agrega un estado para la foto
+function EditProduct({ product, updateProduct }) {
+    const [name, setName] = useState(product.name);
+    const [price, setPrice] = useState(product.price);
+    const [photo, setPhoto] = useState(product.photo);
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        fetch('http://localhost:5000/api/products', {
-            method: 'POST',
+        fetch(`http://localhost:5000/api/products/${product.id}`, {
+            method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ name, price, photo }),  // Incluye la foto en el cuerpo de la solicitud
+            body: JSON.stringify({ name, price, photo }),
         })
-        .then(response => {
-            if (!response.ok) {
-                return response.json().then((data) => { throw new Error(data.error); });
-            }
-            return response.json();
-        })
+        .then(response => response.json())
         .then(data => {
-            if (data.message === 'Product added successfully') {
-                addProduct(data.product);
-                setName('');
-                setPrice('');
-                setPhoto('');
+            if (data.message === 'Product updated successfully') {
+                updateProduct(data.product);
             } else {
-                console.error('Failed to add product:', data.error);
+                console.error('Failed to update product:', data.error);
             }
         })
         .catch((error) => {
@@ -38,7 +30,7 @@ function AddProduct({ addProduct }) {
 
     return (
         <Box component="form" onSubmit={handleSubmit} sx={{ mt: 3 }}>
-            <Typography variant="h3" sx={{ mb: 2 }}>Add Product</Typography>
+            <Typography variant="h3" sx={{ mb: 2 }}>Edit Product</Typography>
             <TextField
                 label="Product Name"
                 value={name}
@@ -64,10 +56,10 @@ function AddProduct({ addProduct }) {
                 margin="normal"
             />
             <Button type="submit" variant="contained" color="primary">
-                Add Product
+                Update Product
             </Button>
         </Box>
     );
 }
 
-export default AddProduct;
+export default EditProduct;

@@ -2,8 +2,11 @@ from .models import Product
 
 class ProductFactory:
     @staticmethod
-    def create_product(name, price):
-        return Product(name, price)
+    def create_product(name, price, photo=None):
+        if photo:
+            return Product(name, price, photo=photo)
+        else:
+            return Product(name, price)
 
 class PercentageDiscountStrategy:
     def __init__(self, discount_percentage):

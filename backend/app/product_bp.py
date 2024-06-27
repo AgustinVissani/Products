@@ -1,11 +1,8 @@
 from flask import Blueprint, jsonify, request
-from .models import ProductDatabase, Product  
-from .services import ProductFactory, PercentageDiscountStrategy
+from app.models import ProductDatabase, Product
+from app.services import ProductFactory, PercentageDiscountStrategy
 
 product_bp = Blueprint('product_bp', __name__)
-
-# Creamos una única instancia de ProductDatabase
-db = ProductDatabase()
 
 class ProductObserver:
     def __init__(self):
@@ -29,45 +26,45 @@ observer = ProductObserver()
 subscriber = ProductSubscriber()
 observer.subscribe(subscriber)
 
-# Ruta para obtener todos los productos
 @product_bp.route('/products', methods=['GET'])
 def get_products():
+    db = ProductDatabase()
     products = db.get_products()
-    return jsonify([{'id': product.id, 'name': product.name, 'price': product.price} for product in products])
+    return jsonify([{'id': product.id, 'name': product.name, 'price': product.price, 'photo': getattr(product, 'photo', '')} for product in products])
 
-# Ruta para agregar un nuevo producto
 @product_bp.route('/products', methods=['POST'])
 def add_product():
     try:
         data = request.get_json()
         name = data.get('name')
         price = data.get('price')
+        photo = data.get('photo', '')  # Asegúrate de manejar correctamente el valor predeterminado
 
-        if not name or not price:
-            return jsonify({'error': 'Name and price are required'}), 400
+        # Llama a create_product() con los argumentos correctos
+        product = ProductFactory.create_product(name, price, photo)
 
-        product = ProductFactory.create_product(name, price)
-
+        db = ProductDatabase()
         db.add_product(product)
+        observer.notify(product)
 
-        return jsonify({'message': 'Product added successfully', 'product': {'id': product.id, 'name': product.name, 'price': product.price}}), 201
-
+        return jsonify({'message': 'Product added successfully', 'product': {'id': product.id, 'name': product.name, 'price': product.price, 'photo': product.photo}}), 201
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-
-# Ruta para eliminar un producto por su id
 @product_bp.route('/products/<int:product_id>', methods=['DELETE'])
 def delete_product(product_id):
-    try:
-        deleted_product = db.delete_product(product_id)
+    db = ProductDatabase()
+    product = db.delete_product(product_id)
+    return jsonify({'message': 'Product deleted successfully', 'product': {'id': product.id, 'name': product.name, 'price': product.price}}), 200
 
-        if deleted_product:
-            observer.notify(deleted_product)
+@product_bp.route('/products/<int:product_id>', methods=['PUT'])
+def update_product(product_id):
+    data = request.get_json()
+    name = data.get('name')
+    price = data.get('price')
+    photo = data.get('photo', '')
 
-            return jsonify({'message': 'Product deleted successfully'}), 200
-        else:
-            return jsonify({'error': 'Product not found'}), 404
+    db = ProductDatabase()
+    product = db.update_product(product_id, name, price, photo)
 
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+    return jsonify({'message': 'Product updated successfully', 'product': {'id': product.id, 'name': product.name, 'price': product.price, 'photo': product.photo}}), 200

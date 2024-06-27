@@ -3,12 +3,14 @@ import { ThemeProvider, CssBaseline, Container, Typography, Switch, FormControlL
 import { lightTheme, darkTheme } from './theme';
 import ProductList from './components/ProductList';
 import AddProduct from './components/AddProduct';
+import EditProduct from './components/EditProduct';
 
 function App() {
     const [products, setProducts] = useState([]);
     const [isDarkMode, setIsDarkMode] = useState(false);
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState('');
+    const [editingProduct, setEditingProduct] = useState(null);
 
     useEffect(() => {
         fetch('http://localhost:5000/api/products')
@@ -25,6 +27,13 @@ function App() {
 
     const deleteProduct = (productId) => {
         setProducts(products.filter(product => product.id !== productId));
+    };
+
+    const updateProduct = (updatedProduct) => {
+        setProducts(products.map(product => product.id === updatedProduct.id ? updatedProduct : product));
+        setSnackbarMessage('Product updated successfully');
+        setSnackbarOpen(true);
+        setEditingProduct(null);
     };
 
     const handleSnackbarClose = (event, reason) => {
@@ -52,12 +61,17 @@ function App() {
                     label="Dark Mode"
                 />
                 <Box sx={{ mt: 4 }}>
-                    <AddProduct addProduct={addProduct} />
+                    {editingProduct ? (
+                        <EditProduct product={editingProduct} updateProduct={updateProduct} />
+                    ) : (
+                        <AddProduct addProduct={addProduct} />
+                    )}
                     <ProductList
                         products={products}
                         deleteProduct={deleteProduct}
                         setSnackbarOpen={setSnackbarOpen}
                         setSnackbarMessage={setSnackbarMessage}
+                        setEditingProduct={setEditingProduct}
                     />
                 </Box>
                 <Snackbar
