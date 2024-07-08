@@ -4,15 +4,16 @@
 ```markdown
 # Backend - Product Management API
 
-## Descripción
+## Description
 
-Este es un backend desarrollado con Flask para gestionar productos. Proporciona una API RESTful para agregar productos y listar todos los productos disponibles.
+This is a backend developed with Flask to manage products. It provides a RESTful API for adding products and listing all available products.
 
-## Requisitos
 
-- Python 3.7 o superior
-- pip (gestor de paquetes de Python)
-- Virtualenv (opcional pero recomendado)
+## Requirements
+
+- Python 3.7 or higher
+- pip (Python package manager)
+- Virtualenv (optional but recommended)
 
 ## Instalación
 
@@ -23,14 +24,14 @@ Este es un backend desarrollado con Flask para gestionar productos. Proporciona 
 
 ## Navega al directorio del proyecto:
 
-cd backend
+cd Installation
 
-## Crea un entorno virtual:
+## Create a virtual environment:
 
 python -m venv venv
 source venv/bin/activate  # En Windows usa `venv\Scripts\activate`
 
-## Instala las dependencias:
+## Install dependencies:
 
 pip install -r requirements.txt
 
