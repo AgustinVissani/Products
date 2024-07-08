@@ -19,7 +19,7 @@ This is a backend developed with Flask to manage products. It provides a RESTful
 
 1. Clona el repositorio:
 
- git clone https://github.com/tu-usuario/product-management-backend.git
+ git clone 
 
 
 ## Navega al directorio del proyecto:
